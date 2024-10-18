@@ -8,7 +8,7 @@ export class BlogController {
   // POST => http://localhost:3000/list/
   @Post('list')
   list(@Body() searchParams) {
-    console.log(searchParams); // { name: 'Jack'x, age: '28' }
+    console.log(searchParams); // { name: 'Jack'xxx, age: '28' }
     return this.blogService.findAll();
   }
 }
