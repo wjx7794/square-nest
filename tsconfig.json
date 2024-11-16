@@ -16,6 +16,10 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    // Nestjs 配置 ts 路径别名: https://www.mulingyuer.com/archives/975/
+    "paths": {
+      "@/*": ["src/*"]
+    }
   }
 }

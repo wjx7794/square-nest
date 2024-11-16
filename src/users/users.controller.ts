@@ -13,7 +13,7 @@ export class UsersController {
    */
   @Post('searchAll')
   findAll() {
-    return this.usersService.findAll();
+    return this.usersService.searchAll();
   }
 
   /**
@@ -32,7 +32,7 @@ export class UsersController {
    * @returns
    */
   @Post('edit')
-  edit(@Body() user: User) {
+  edit(@Body() user) {
     return this.usersService.edit(user);
   }
 
@@ -43,7 +43,7 @@ export class UsersController {
    */
   @Post('searchOne')
   findOne(@Body() user: User) {
-    return this.usersService.findOne(user);
+    return this.usersService.searchOne(user);
   }
 
   /**
