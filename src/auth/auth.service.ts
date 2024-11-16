@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 // 外部模块
 import { UsersService } from '@/users/users.service';
 import { User } from '@/users/config/user.entity';
+import { throwError } from '@/common/utils/errorHandle';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,7 @@ export class AuthService {
     const userInfo = await this.usersService.verify(user);
     // 2. 数据库无用户信息，则登陆失败，抛出错误
     if (!userInfo) {
-      throw new UnauthorizedException();
+      throwError({ errMsg: '账号密码错误' });
     }
     // 3. 登陆成功，则生成 token (从用户属性的子集中生成 JWT)
     const accessToken = await this.jwtService.signAsync({
@@ -30,6 +31,10 @@ export class AuthService {
     // 4. 将生成的 token 存入 cookie 中
     const passport = {
       accessToken,
+      userInfo: {
+        userId: userInfo?.userId,
+        userName: userInfo?.userName,
+      },
     };
     res.cookie('passport', passport, {
       // JS脚本无法读取 cookie 信息，防止 XSS 攻击
