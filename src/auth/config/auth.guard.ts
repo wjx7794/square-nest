@@ -1,3 +1,4 @@
+// 内部模块
 import {
   CanActivate,
   ExecutionContext,
@@ -5,54 +6,49 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from './constants';
-import { Request } from 'express';
-import { IS_PUBLIC_KEY } from './decorator';
 import { Reflector } from '@nestjs/core';
+// 外部模块
+import { jwtConstants } from '@/auth/config/constants';
+import { IS_PUBLIC_KEY } from '@/auth/config/decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
+    // 注入Jwt服务
     private jwtService: JwtService,
+    // 注入装饰器
     private reflector: Reflector,
   ) {}
 
+  // 是否允许当前请求
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // return true;
     // 1. 获取装饰器 Public
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
+    // 2. 公共方法可以直接绕开 token 执行
     if (isPublic) {
-      // 💡 查看此条件
       return true;
     }
-
-    // 2. 校验当前请求是否携带 jwt，如果没有就返回失败，如果有就校验并设置在请求头 user 字段上
+    // 3. 非公共方法，从请求中获取 cookie，没有签名的 cookie 值从请求的 cookies 获取
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
-    console.log('token ====>', token);
-    if (!token) {
+    // 签名的 cookie 值从请求的 signedCookies 里获取
+    const cookieValue = request.signedCookies;
+    const { passport } = cookieValue || {};
+    // 4. 没有 accessToken，直接返回失败
+    if (!passport?.accessToken) {
       throw new UnauthorizedException();
     }
+    // 5. 有 token，校验当前请求携带的 jwt 是否合法
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
+      await this.jwtService.verifyAsync(passport?.accessToken, {
         secret: jwtConstants.secret,
       });
-      // 💡 将 payload 挂载到请求对象上，以便可以在路由处理器中访问它
-
-      request['user'] = payload;
-      console.log('payload====>', request['user']);
     } catch {
       throw new UnauthorizedException();
     }
+    // 6. 通过所有校验，则能成功访问路由方法
     return true;
-  }
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    console.log('=====>', request.headers);
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }

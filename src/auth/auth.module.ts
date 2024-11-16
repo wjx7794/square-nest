@@ -11,7 +11,9 @@ import { AuthGuard } from '@/auth/config/auth.guard';
 
 @Module({
   imports: [
+    // 用户模块
     UsersModule,
+    // Jwt模块
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
@@ -19,6 +21,7 @@ import { AuthGuard } from '@/auth/config/auth.guard';
     }),
   ],
   providers: [
+    // 权限服务
     AuthService,
     // 开启全局认证
     {
