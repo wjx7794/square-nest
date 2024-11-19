@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '@/users/users.service';
 import { User } from '@/users/config/user.entity';
 import { throwError } from '@/common/utils/errorHandle';
+import { transformData } from '@/common/utils/successHandle';
 
 @Injectable()
 export class AuthService {
@@ -45,11 +46,11 @@ export class AuthService {
       maxAge: 1000 * 60 * 60,
     });
     // 5. 返回可读信息
-    return {
+    return transformData({
       userInfo,
       accessToken,
       message: '登陆成功',
-    };
+    });
   }
 
   // 2. 退出登陆
@@ -57,8 +58,17 @@ export class AuthService {
     // 删除 token 的 cookie
     res.clearCookie('passport');
     // 返回结果
-    return {
+    return transformData({
       message: '退出登陆成功',
-    };
+    });
+  }
+
+  // 3. 查看 cookie (本地调试)
+  async viewCookie(req): Promise<any> {
+    // 返回结果
+    return transformData({
+      ...(req.signedCookies || {}),
+      message: '查看 cookie 成功',
+    });
   }
 }

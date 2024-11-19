@@ -8,13 +8,16 @@ import {
   Request,
   Get,
   Res,
+  UseInterceptors,
 } from '@nestjs/common';
 // 外部模块
+import { LoggingInterceptor } from '@/common/interceptor/logger.interceptor';
 import { AuthService } from '@/auth/auth.service';
 import { User } from '@/users/config/user.entity';
 import { Public } from '@/auth/config/decorator';
 
 @Controller('auth')
+@UseInterceptors(LoggingInterceptor)
 export class AuthController {
   constructor(private authService: AuthService) {}
 
@@ -34,7 +37,7 @@ export class AuthController {
 
   // 3. 查看 cookie (本地调试)
   @Get('viewCookie')
-  getProfile(@Request() req) {
-    return req.signedCookies;
+  viewCookie(@Request() req) {
+    return this.authService.viewCookie(req);
   }
 }

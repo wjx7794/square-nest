@@ -1,12 +1,14 @@
 // 内部模块
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { APP_PIPE } from '@nestjs/core';
 // 外部模块
 import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
 import { BlogModule } from '@/blog/blog.module';
 import { UsersModule } from '@/users/users.module';
 import { AuthModule } from '@/auth/auth.module';
+import { ValidationPipe } from '@/common/pipe/validation.pipe';
 
 @Module({
   imports: [
@@ -39,6 +41,13 @@ import { AuthModule } from '@/auth/auth.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // 全局管道
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
+    },
+  ],
 })
 export class AppModule {}

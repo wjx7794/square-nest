@@ -12,3 +12,16 @@ export interface IthrowErrorProps {
   statusCode?: HttpStatus;
   code?: ErrorCodeEnum;
 }
+
+// 通用成功-枚举
+export enum SuccessCodeEnum {
+  SUCCESS = 0,
+}
+
+// 通用成功
+export interface ITransformDataProps {
+  message?: string;
+  success?: boolean;
+  code?: SuccessCodeEnum;
+  [prop: string]: any;
+}
