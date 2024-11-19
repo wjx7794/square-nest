@@ -2,6 +2,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_PIPE } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
 // 外部模块
 import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
@@ -9,6 +10,7 @@ import { BlogModule } from '@/blog/blog.module';
 import { UsersModule } from '@/users/users.module';
 import { AuthModule } from '@/auth/auth.module';
 import { ValidationPipe } from '@/common/pipe/validation.pipe';
+import configuration from '@/config/configuration';
 
 @Module({
   imports: [
@@ -39,6 +41,13 @@ import { ValidationPipe } from '@/common/pipe/validation.pipe';
       synchronize: true,
     }),
     AuthModule,
+    // 配置
+    ConfigModule.forRoot({
+      // 全局化，这样不需要每个模块都单独注入
+      isGlobal: true,
+      // 自定义配置文件
+      load: [configuration],
+    }),
   ],
   controllers: [AppController],
   providers: [
