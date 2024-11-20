@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from '@/app.module';
 import * as cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
+import { ValidationPipe } from '@nestjs/common';
 // 外部模块
 import { logger } from '@/common/middleware/logger.middleware';
 
@@ -17,6 +18,9 @@ async function bootstrap() {
 
   // 全局中间价，打印访问日志
   app.use(logger);
+
+  // 对所有传入的「客户端有效负载」强制执行验证规则
+  app.useGlobalPipes(new ValidationPipe());
 
   // 监听端口启动
   await app.listen(PORT);

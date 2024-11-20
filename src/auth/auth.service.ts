@@ -3,9 +3,9 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 // 外部模块
 import { UsersService } from '@/users/users.service';
-import { User } from '@/users/config/user.entity';
 import { throwError } from '@/common/utils/errorHandle';
 import { transformData } from '@/common/utils/successHandle';
+import { LoginUserDTO } from '@/auth/config/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +17,7 @@ export class AuthService {
   ) {}
 
   // 1. 登陆
-  async login(user: User, res): Promise<any> {
+  async login(user: LoginUserDTO, res): Promise<any> {
     // 1. 将用户的账号密码与数据库比对
     const userInfo = await this.usersService.verify(user);
     // 2. 数据库无用户信息，则登陆失败，抛出错误

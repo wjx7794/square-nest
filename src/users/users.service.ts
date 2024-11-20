@@ -147,7 +147,7 @@ export class UsersService {
   }
 
   // 登陆认证
-  async verify(user: User): Promise<any> {
+  async verify(user: Partial<User>): Promise<any> {
     const { userName, password } = user || {};
 
     try {

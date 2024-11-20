@@ -13,8 +13,8 @@ import {
 // 外部模块
 import { LoggingInterceptor } from '@/common/interceptor/logger.interceptor';
 import { AuthService } from '@/auth/auth.service';
-import { User } from '@/users/config/user.entity';
 import { Public } from '@/auth/config/decorator';
+import { LoginUserDTO } from '@/auth/config/auth.dto';
 
 @Controller('auth')
 @UseInterceptors(LoggingInterceptor)
@@ -25,7 +25,7 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  login(@Res({ passthrough: true }) res: Response, @Body() user: User) {
+  login(@Res({ passthrough: true }) res: Response, @Body() user: LoginUserDTO) {
     return this.authService.login(user, res);
   }
 
