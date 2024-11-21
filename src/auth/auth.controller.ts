@@ -21,7 +21,11 @@ import { LoginUserDTO } from '@/auth/config/auth.dto';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  // 1. 登陆
+  /**
+   * @description 登陆
+   * @API POST => /auth/login
+   * @returns
+   */
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
@@ -29,13 +33,21 @@ export class AuthController {
     return this.authService.login(user, res);
   }
 
-  // 2. 退出登陆
+  /**
+   * @description 退出登陆
+   * @API POST => /auth/logout
+   * @returns
+   */
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
     return this.authService.logout(res);
   }
 
-  // 3. 查看 cookie (本地调试)
+  /**
+   * @description 查看 cookie (本地调试)
+   * @API POST => /auth/viewCookie
+   * @returns
+   */
   @Get('viewCookie')
   viewCookie(@Request() req) {
     return this.authService.viewCookie(req);

@@ -3,7 +3,8 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 // 外部模块
-import { User } from './config/user.entity';
+import { throwError } from '@/common/utils/errorHandle';
+import { User } from '@/users/config/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -15,13 +16,12 @@ export class UsersService {
 
   // 1. 查询所有用户
   async searchAll(): Promise<User[]> {
-    let info = [];
     try {
-      info = await this.usersRepository.find();
+      const info = await this.usersRepository.find();
+      return info;
     } catch (e) {
-      throw new HttpException('查询所有用户失败', HttpStatus.FORBIDDEN);
+      throwError({ errMsg: '查询所有用户失败' });
     }
-    return info;
   }
 
   // 2. 新建用户

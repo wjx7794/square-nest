@@ -1,9 +1,12 @@
+// 内部模块
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { User } from './config/user.entity';
+// 外部模块
+import { User } from '@/users/config/user.entity';
+import { UsersService } from '@/users/users.service';
 
 @Controller('users')
 export class UsersController {
+  // 注入用户服务
   constructor(private readonly usersService: UsersService) {}
 
   /**
@@ -12,7 +15,7 @@ export class UsersController {
    * @returns
    */
   @Post('searchAll')
-  findAll() {
+  searchAll() {
     return this.usersService.searchAll();
   }
 
