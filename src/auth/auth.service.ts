@@ -20,15 +20,18 @@ export class AuthService {
   async login(user: LoginUserDTO, res): Promise<any> {
     // 1. 将用户的账号密码与数据库比对
     const userInfo = await this.usersService.verify(user);
+
     // 2. 数据库无用户信息，则登陆失败，抛出错误
     if (!userInfo) {
       throwError({ errMsg: '账号密码错误' });
     }
+
     // 3. 登陆成功，则生成 token (从用户属性的子集中生成 JWT)
     const accessToken = await this.jwtService.signAsync({
       sub: userInfo.userId,
       username: userInfo.username,
     });
+
     // 4. 将生成的 token 存入 cookie 中
     const passport = {
       accessToken,
@@ -45,6 +48,7 @@ export class AuthService {
       // 过期时间，从现在开始算
       maxAge: 1000 * 60 * 60,
     });
+
     // 5. 返回可读信息
     return transformData({
       userInfo,

@@ -16,7 +16,9 @@ import { AuthGuard } from '@/auth/config/auth.guard';
     // Jwt模块
     JwtModule.register({
       global: true,
+      // 用于加密
       secret: jwtConstants.secret,
+      // 用来设置 token 的过期时间
       signOptions: { expiresIn: '3600s' },
     }),
   ],
