@@ -15,6 +15,8 @@ import configuration from '@/config/configuration';
 
 @Module({
   imports: [
+    // 鉴权
+    AuthModule,
     // 博客
     BlogModule,
     // 用户
@@ -48,8 +50,9 @@ import configuration from '@/config/configuration';
       },
       inject: [ConfigService],
     }),
-    AuthModule,
-    // 配置
+    /**
+     * 配置
+     */
     ConfigModule.forRoot({
       // 全局化，这样不需要每个模块都单独注入
       isGlobal: true,
@@ -57,7 +60,9 @@ import configuration from '@/config/configuration';
       load: [configuration],
     }),
   ],
+  // 控制器
   controllers: [AppController],
+  // 注入服务
   providers: [
     AppService,
     // 全局管道
