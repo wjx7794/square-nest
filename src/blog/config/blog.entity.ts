@@ -34,7 +34,7 @@ export class Blog {
   /**--------------------------------- 关联信息 start --------------------------------------*/
   // userId
   @Column()
-  userId: number;
+  userId: string;
 
   // 关联 user
   @ManyToOne(() => User, (user) => user.blogs)

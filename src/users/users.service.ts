@@ -2,7 +2,9 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { v7 as uuidV7 } from 'uuid';
 // 外部模块
+import { transformData } from '@/common/utils/successHandle';
 import { throwError } from '@/common/utils/errorHandle';
 import { User } from '@/users/config/user.entity';
 
@@ -15,10 +17,13 @@ export class UsersService {
   ) {}
 
   // 1. 查询所有用户
-  async searchAll(): Promise<User[]> {
+  async searchAll(): Promise<any> {
     try {
-      const info = await this.usersRepository.find();
-      return info;
+      const userList = await this.usersRepository.find();
+      return transformData({
+        message: '查询所有用户成功',
+        userList,
+      });
     } catch (e) {
       throwError({ errMsg: '查询所有用户失败' });
     }
@@ -26,23 +31,43 @@ export class UsersService {
 
   // 2. 新建用户
   async create(user: User): Promise<any> {
-    const { userName, password } = user || {};
+    const { userName, password, avatar } = user || {};
+
     // 2.1 参数缺失
     if (!userName || !password) {
-      throw new HttpException('创建失败，缺少必要参数', HttpStatus.FORBIDDEN);
+      throwError({ errMsg: '创建失败，缺少必要参数' });
     }
-    // 2.2 查询是否存在
+
+    // 2.2 查询用户名是否存在
     const exist = await this.usersRepository.findOne({
       where: {
         userName,
       },
     });
     if (exist) {
-      throw new HttpException('创建失败，用户名已存在', HttpStatus.FORBIDDEN);
+      throwError({ errMsg: '创建失败，用户名已存在' });
     }
-    // 2.3 校验通过，则创建
-    await this.usersRepository.save(user);
-    return user;
+
+    // 2.3 生成 userId 并查询是否存在
+    const newUserId = uuidV7();
+    const hasId = await this.usersRepository.findOne({
+      where: {
+        userId: newUserId,
+      },
+    });
+    if (hasId) {
+      throwError({ errMsg: '服务繁忙，请重试' });
+    }
+
+    // 2.4 校验通过，则创建
+    const newUser = {
+      userId: newUserId,
+      userName,
+      password,
+      avatar,
+    };
+    await this.usersRepository.save(newUser);
+    return newUser;
   }
 
   // 3. 编辑用户
