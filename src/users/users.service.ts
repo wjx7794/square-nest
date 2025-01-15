@@ -67,21 +67,25 @@ export class UsersService {
       avatar,
     };
     await this.usersRepository.save(newUser);
-    return newUser;
+    return transformData({
+      message: '创建成功',
+      ...newUser,
+    });
   }
 
   // 3. 编辑用户
   async edit(user): Promise<any> {
     const { userName, password, newUserName, newPassword } = user || {};
+
     // 3.1 参数缺失
     if (!userName || !password) {
-      throw new HttpException('编辑失败，缺少旧信息', HttpStatus.FORBIDDEN);
+      throwError({ errMsg: '创建失败，旧账号名称或密码不能为空' });
     }
     if (!newUserName || !newPassword) {
-      throw new HttpException('编辑失败，缺少新信息', HttpStatus.FORBIDDEN);
+      throwError({ errMsg: '创建失败，新账号名称或密码不能为空' });
     }
 
-    // 3.2 查询新用户名是否存在
+    // 3.2 校验旧账号是否登陆成功
     const info = await this.usersRepository.findOne({
       where: {
         userName,
@@ -89,120 +93,124 @@ export class UsersService {
       },
     });
     if (!info) {
-      throw new HttpException('编辑失败，用户信息错误', HttpStatus.FORBIDDEN);
+      throwError({ errMsg: '编辑失败，旧账号名称或密码错误' });
     }
 
     // 3.3 查询新用户名是否存在
-    const exist = await this.usersRepository.findOne({
-      where: {
-        userName: newUserName,
-      },
-    });
-    if (exist) {
-      throw new HttpException('编辑失败，新用户名已存在', HttpStatus.FORBIDDEN);
+    if (userName !== newUserName) {
+      const exist = await this.usersRepository.findOne({
+        where: {
+          userName: newUserName,
+        },
+      });
+      if (exist) {
+        throwError({ errMsg: '编辑失败，新用户名已存在' });
+      }
     }
 
     // 3.4 校验通过，则更新数据
     info.userName = newUserName;
     info.password = newPassword;
     await this.usersRepository.save(info);
-    return user;
+    return transformData({
+      message: '编辑成功',
+      ...(user || {}),
+    });
   }
 
   // 4. 查询指定用户
   async searchOne(user: User): Promise<any> {
     const { userId } = user || {};
 
-    try {
-      // 1. 参数缺失
-      if (!userId) {
-        throw new HttpException('缺少必要参数', HttpStatus.FORBIDDEN);
-      }
-
-      // 2. 关联查询
-      const res = await this.usersRepository.findOne({
-        // where: {
-        //   id,
-        // },
-        // select: ['id', 'photos'],
-        where: {
-          blogs: {
-            userId,
-          },
-        },
-        relations: ['blogs'], // 关联字段
-      });
-      if (res) {
-        return res;
-      }
-      return '暂无数据';
-    } catch (e) {
-      const errorText = e?.message || '查询失败';
-      throw new HttpException(errorText, HttpStatus.FORBIDDEN);
+    // 1. 参数缺失
+    if (!userId) {
+      throwError({ errMsg: '缺少必要参数' });
     }
-  }
 
-  // 删除
-  async remove(user: User): Promise<any> {
-    const { userId } = user || {};
-
-    try {
-      // 1. 参数缺失
-      if (!userId) {
-        throw new HttpException('缺少必要参数', HttpStatus.FORBIDDEN);
-      }
-
-      // 2. 查询是否存在
-      const exist = await this.usersRepository.findOne({
-        where: {
+    // 2. 关联查询
+    const res = await this.usersRepository.findOne({
+      // where: {
+      //   id,
+      // },
+      // select: ['id', 'photos'],
+      where: {
+        blogs: {
           userId,
         },
-      });
-      if (!exist) {
-        throw new HttpException('用户名不存在', HttpStatus.FORBIDDEN);
-      }
+      },
+      relations: ['blogs'], // 关联字段
+    });
 
-      // 3. 存在才能删除
-      await this.usersRepository.remove(exist);
-      return '删除成功';
-    } catch (e) {
-      const errorText = e?.message || '删除失败';
-      throw new HttpException(errorText, HttpStatus.FORBIDDEN);
+    // 2.1 查询到结果
+    if (res) {
+      const { userId, userName, avatar, blogs } = res;
+      return transformData({
+        message: '查询用户成功',
+        // data 包含如下
+        userId,
+        userName,
+        avatar,
+        blogs,
+      });
     }
+
+    // 2.2 查询不到结果
+    return transformData({
+      message: '暂无数据',
+    });
   }
 
-  // 登陆认证
+  // 5. 删除
+  async remove(user: User): Promise<any> {
+    const { userName, password } = user || {};
+
+    // 5.1 参数缺失
+    if (!userName || !password) {
+      throwError({ errMsg: '创建失败，缺少必要参数' });
+    }
+
+    // 5.2 校验旧账号是否登陆成功
+    const info = await this.usersRepository.findOne({
+      where: {
+        userName,
+        password,
+      },
+    });
+    if (!info) {
+      throwError({ errMsg: '账号名称或密码错误' });
+    }
+
+    // 5.3 存在才能删除
+    await this.usersRepository.remove(info);
+    return transformData({
+      message: '删除成功',
+    });
+  }
+
+  // 6. 登陆认证
   async verify(user: Partial<User>): Promise<any> {
     const { userName, password } = user || {};
 
-    try {
-      // 1. 参数缺失
-      if (!userName || !password) {
-        throw new HttpException('缺少必要参数', HttpStatus.FORBIDDEN);
-      }
-
-      // 2. 关联查询
-      const res = await this.usersRepository.findOne({
-        where: {
-          userName,
-          password,
-        },
-        // select: ['id', 'photos'],
-        // where: {
-        //   blogs: {
-        //     userId,
-        //   },
-        // },
-        // relations: ['blogs'], // 关联字段
-      });
-      // if (res) {
-      //   return res;
-      // }
-      // return '暂无数据';
-      return res;
-    } catch (e) {
-      const errorText = e?.message || '查询失败';
-      throw new HttpException(errorText, HttpStatus.FORBIDDEN);
+    // 1. 参数缺失
+    if (!userName || !password) {
+      throwError({ errMsg: '验证失败，缺少必要参数' });
     }
+
+    // 2. 关联查询
+    const res = await this.usersRepository.findOne({
+      where: {
+        userName,
+        password,
+      },
+      // select: ['id', 'photos'],
+      // where: {
+      //   blogs: {
+      //     userId,
+      //   },
+      // },
+      // relations: ['blogs'], // 关联字段
+    });
+
+    return res;
   }
 }
