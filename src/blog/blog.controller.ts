@@ -1,13 +1,15 @@
+// 内部模块
 import { Controller, Post, Body } from '@nestjs/common';
-import { BlogService } from './blog.service';
-import { Blog } from './config/blog.entity';
+// 外部模块
+import { BlogService } from '@/blog/blog.service';
+import { Blog } from '@/blog/config/blog.entity';
 
 @Controller('blog')
 export class BlogController {
   constructor(private blogService: BlogService) {}
 
   /**
-   * @description 列表查询
+   * @description 1. 列表查询
    * @API POST => /blog/search
    * @param searchParams {
    *  // 关键词
@@ -25,7 +27,7 @@ export class BlogController {
   }
 
   /**
-   * @description 新增
+   * @description 2. 新增
    * @API POST => /blog/add
    * @param searchParams {
    *  // 创建时间
@@ -47,7 +49,7 @@ export class BlogController {
   }
 
   /**
-   * @description 编辑
+   * @description 3. 编辑
    * @API POST => /blog/edit
    * @returns
    */
@@ -57,22 +59,22 @@ export class BlogController {
   }
 
   /**
-   * @description 指定查询
+   * @description 4. 指定查询
    * @API POST => /blog/searchOne
    * @returns
    */
   @Post('searchOne')
-  searchOne(@Body() blog: Blog) {
-    return this.blogService.searchOne(blog);
+  searchOne(@Body() searchParams) {
+    return this.blogService.searchOne(searchParams);
   }
 
   /**
-   * @description 删除指定
+   * @description 5. 删除指定
    * @API POST => /blog/remove
    * @returns
    */
   @Post('remove')
-  remove(@Body() blog: Blog) {
-    return this.blogService.remove(blog);
+  remove(@Body() searchParams) {
+    return this.blogService.remove(searchParams);
   }
 }
