@@ -48,7 +48,7 @@ export class AuthController {
    * @API POST => /auth/viewCookie
    * @returns
    */
-  @Get('viewCookie')
+  @Post('viewCookie')
   viewCookie(@Request() req) {
     return this.authService.viewCookie(req);
   }

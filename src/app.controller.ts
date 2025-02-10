@@ -6,6 +6,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { AppService } from './app.service';
+import { Public } from '@/auth/config/decorator';
 
 const sleep = async (time: number) => {
   return new Promise((resolve) => {
@@ -17,6 +18,7 @@ const sleep = async (time: number) => {
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @Public()
   @Get()
   getHello(): string {
     return this.appService.getHello();

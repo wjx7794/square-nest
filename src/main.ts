@@ -28,7 +28,12 @@ async function bootstrap() {
   app.use(compression());
 
   // 允许跨域
-  app.enableCors();
+  app.enableCors({
+    credentials: true,
+    origin(origin, callback) {
+      callback(null, true);
+    },
+  });
 
   // 设置限速，每个IP地址每分钟最多允许50个请求
   app.use(

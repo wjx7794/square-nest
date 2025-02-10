@@ -3,6 +3,7 @@ import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 // 外部模块
 import { User } from '@/users/config/user.entity';
 import { UsersService } from '@/users/users.service';
+import { Public } from '@/auth/config/decorator';
 
 @Controller('users')
 export class UsersController {
@@ -24,6 +25,7 @@ export class UsersController {
    * @API POST => /users/create
    * @returns
    */
+  @Public()
   @Post('create')
   create(@Body() user: User) {
     return this.usersService.create(user);
