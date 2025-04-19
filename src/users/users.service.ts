@@ -113,7 +113,7 @@ export class UsersService {
     info.password = newPassword;
     await this.usersRepository.save(info);
     return transformData({
-      message: '编辑成功',
+      message: '修改个人信息成功',
       ...(user || {}),
     });
   }
